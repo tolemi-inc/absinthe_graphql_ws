@@ -36,7 +36,7 @@ defmodule Absinthe.GraphqlWS.SocketTest do
     assert json == Jason.encode!(payload)
   end
 
-  describe "initalization" do
+  describe "initialization" do
     test "starts and stops" do
       assert {:ok, client} = Test.Client.start()
       Test.Client.close(client)
