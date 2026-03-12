@@ -98,12 +98,16 @@ defmodule Absinthe.GraphqlWS.Socket do
   * `{:reply, :ok, {:text, "{}"}, socket}` - send JSON content to the client.
   * `{:reply, :error, {:text, "{}"}, socket}` - send an error with JSON payload to the client.
   * `{:stop, :normal, socket}` - shut down the socket process.
+  * `{:stop, :normal, close_detail(), socket}` - shut down the socket process with a close code.
   """
+  @type close_detail() :: non_neg_integer() | {non_neg_integer(), binary()}
+
   @type reply_inbound() ::
           {:ok, socket()}
           | {:reply, :ok, frame(), socket()}
           | {:reply, :error, frame(), socket()}
           | {:stop, term(), socket()}
+          | {:stop, term(), close_detail(), socket()}
 
   @typedoc """
   Valid return values from `c:handle_message/2`.

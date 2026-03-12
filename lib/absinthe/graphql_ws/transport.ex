@@ -202,7 +202,21 @@ defmodule Absinthe.GraphqlWS.Transport do
   end
 
   defp close(code, message, socket) do
-    {:reply, :ok, {:close, code, message}, socket}
+    reason =
+      case message do
+        msg when is_binary(msg) -> msg
+        msg -> Util.json_library().encode!(msg)
+      end
+
+    # WebSock (Bandit) supports {:stop, :normal, {code, reason}, socket} to send
+    # a close frame with a status code. Cowboy's Phoenix adapter only handles the
+    # 3-tuple {:stop, reason, socket} and uses {:reply, :ok, {:close, ...}} for
+    # close frames. Detect which adapter is in use and return the appropriate tuple.
+    if Code.ensure_loaded?(Bandit) do
+      {:stop, :normal, {code, reason}, socket}
+    else
+      {:reply, :ok, {:close, code, reason}, socket}
+    end
   end
 
   defp parse_query(%{"query" => query}) when is_binary(query), do: {:ok, query}
